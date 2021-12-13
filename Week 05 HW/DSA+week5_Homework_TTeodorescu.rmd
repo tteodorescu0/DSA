@@ -1,0 +1,79 @@
+---
+title: "Data Science Academy / Week 5 Homework"
+author: "Titus Teodorescu"
+date: "12/05/2021"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Part 2
+
+
+Explore the PSTRE_syntheticData.csv to
+
+* Create two new variables: action sequence variable and time interval sequence for each participant
+
+* Extract the time for the first action for each participant
+
+* Represent each action sequence by n-grams (n=2)
+
+---
+
+
+```{r}
+## load libraries
+library(dplyr)
+library(stringr)
+library(purrr)
+library(tidyr)
+
+## reading data to a data frame, called df
+## despite the ".csv" name (which suggests the data is separated by commas), the separator in the source .csv file is a tab
+df <- read.csv(file="C:/Users/tteodorescu/OneDrive - Educational Testing Service/ETS/Data Science/Data Science Academy/Week5/Homework/data for week5/PSTRE_syntheticData.csv",header = TRUE,sep="\t")
+
+print("Original data")
+head(df, n=15L)
+
+df_with_new_variables <- df %>% 
+  mutate(Next_Timestamp=lag(Timestamp, default = 0)) %>%                             ## shift the Timestamp column down by 1 row; 
+                                                                                     ## store it to a new column
+  mutate(Duration = Timestamp - Next_Timestamp) %>%                                  ## compute the duration of each action
+  mutate(Duration = if_else(Duration < 0, 0, Duration)) %>%                          ## replace negative Duration values with 0
+  mutate(Duration = lead(Duration)) %>%                                              ## shift Duration column up by 1 row
+  filter(Coding != "END") %>%                                                        ## remove the END actions
+  group_by(TestTakerID) %>%                                                          ## group by TestTakerID
+  summarise(action_sequence = paste(Coding, collapse = ","),                         ## concatenate Coding to a string with a comma separator
+    duration_sequence = paste(str_replace(Duration," ",""), collapse = "," ))        ## concatenate Duration to a string with a comma separator
+ 
+
+print("Revised data with new variables: action_sequence and duration_sequence")
+head(df_with_new_variables, n=15L)
+str(df_with_new_variables)
+
+df_duration_of_first_action <- df_with_new_variables %>%                              
+  mutate(duration_of_first_action = str_split(duration_sequence, ",")) %>%           ## split by commas
+  mutate(duration_of_first_action = map(duration_of_first_action, 1)) %>%            ## get the first element
+  mutate(duration_of_first_action = unlist(duration_of_first_action)) %>%
+  select(TestTakerID, duration_of_first_action)                                      ## remove all other columns
+
+print("Display duration of the first action")
+head(df_duration_of_first_action, n=15L)
+
+df_action_sequence_of_2_grams <- df %>% 
+  mutate(Next_Coding=lead(Coding)) %>%                                               ## shift the Coding column up by 1 row; 
+                                                                                     ## store it to a new column
+  filter(Coding != "END") %>%                                                        ## remove the END actions
+  unite("two_gram", Coding:Next_Coding, sep=" ") %>%                                 ## combine Coding and Next_Coding with a space separator
+  group_by(TestTakerID) %>%                                                          ## group by TestTakerID
+  summarise(action_sequence = paste(two_gram, collapse = ","))                       ## concatenate two_gram to a string with a comma separator  
+
+print("Display action sequence of 2-grams. Note that the two entries in the same 2-gram are separated by a space, while any two adjacent 2-grams are separated by a comma.")
+head(df_action_sequence_of_2_grams, n=15L)
+
+```
+
