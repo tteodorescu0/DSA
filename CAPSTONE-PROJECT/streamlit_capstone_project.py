@@ -1,54 +1,54 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
+#import plotly.express as px
 
 #################################################################################################
 # code from https://github.com/BugzTheBunny/streamlit_logging_output_example/blob/main/app.py
-#import streamlit as st
-from streamlit.report_thread import REPORT_CONTEXT_ATTR_NAME
-from threading import current_thread
-from contextlib import contextmanager
-from io import StringIO
-import sys
-import logging
-import time
 
-
-@contextmanager
-def st_redirect(src, dst):
-    placeholder = st.empty()
-    output_func = getattr(placeholder, dst)
-
-    with StringIO() as buffer:
-        old_write = src.write
-
-        def new_write(b):
-            if getattr(current_thread(), REPORT_CONTEXT_ATTR_NAME, None):
-                buffer.write(b + '')
-                output_func(buffer.getvalue() + '')
-            else:
-                old_write(b)
-
-        try:
-            src.write = new_write
-            yield
-        finally:
-            src.write = old_write
-
-
-@contextmanager
-def st_stdout(dst):
-    "this will show the prints"
-    with st_redirect(sys.stdout, dst):
-        yield
-
-
-@contextmanager
-def st_stderr(dst):
-    "This will show the logging"
-    with st_redirect(sys.stderr, dst):
-        yield
+# from streamlit.report_thread import REPORT_CONTEXT_ATTR_NAME
+# from threading import current_thread
+# from contextlib import contextmanager
+# from io import StringIO
+# import sys
+# import logging
+# import time
+#
+#
+# @contextmanager
+# def st_redirect(src, dst):
+#     placeholder = st.empty()
+#     output_func = getattr(placeholder, dst)
+#
+#     with StringIO() as buffer:
+#         old_write = src.write
+#
+#         def new_write(b):
+#             if getattr(current_thread(), REPORT_CONTEXT_ATTR_NAME, None):
+#                 buffer.write(b + '')
+#                 output_func(buffer.getvalue() + '')
+#             else:
+#                 old_write(b)
+#
+#         try:
+#             src.write = new_write
+#             yield
+#         finally:
+#             src.write = old_write
+#
+#
+# @contextmanager
+# def st_stdout(dst):
+#     "this will show the prints"
+#     with st_redirect(sys.stdout, dst):
+#         yield
+#
+#
+# @contextmanager
+# def st_stderr(dst):
+#     "This will show the logging"
+#     with st_redirect(sys.stderr, dst):
+#         yield
 #################################################################################################
 
 
@@ -113,7 +113,7 @@ st.code('''
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
+#import plotly.express as px
 
 df = pd.pandas.read_csv('data_capstone_dsa2021_2022.csv')
 ''')
