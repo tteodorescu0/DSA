@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import re
-from fuzzywuzzy import fuzz, process
+#from fuzzywuzzy import fuzz, process
 #import plotly.express as px
 
 #################################################################################################
@@ -116,7 +116,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import re
-from fuzzywuzzy import fuzz, process
+#from fuzzywuzzy import fuzz, process
 #import plotly.express as px
 
 df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
@@ -1845,7 +1845,7 @@ def normalize_state(state_string):
             new_list.append(word)
     temp = str.strip(' '.join(new_list))
 
-    ##from fuzzywuzzy import process
+    from fuzzywuzzy import process
     best_match = process.extractOne(temp, us_state_name_list)
     if best_match[1] >= 86:
         return uppercase_us_state_to_abbrev[best_match[0]]
