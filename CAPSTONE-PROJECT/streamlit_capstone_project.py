@@ -115,7 +115,7 @@ import pandas as pd
 import numpy as np
 #import plotly.express as px
 
-df = pd.read_csv('data_capstone_dsa2021_2022.csv')
+df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
 ''')
 
 ##import streamlit as st
@@ -123,7 +123,7 @@ df = pd.read_csv('data_capstone_dsa2021_2022.csv')
 ##import numpy as np
 ##import plotly.express as px
 
-df = pd.read_csv('data_capstone_dsa2021_2022.csv')
+df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
 
 st.write('Here are the first 5 rows in the data frame.')
 
