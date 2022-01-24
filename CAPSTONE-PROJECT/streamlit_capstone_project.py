@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import re
+from fuzzywuzzy import fuzz, process
 #import plotly.express as px
 
 #################################################################################################
@@ -113,6 +115,8 @@ st.code('''
 import streamlit as st
 import pandas as pd
 import numpy as np
+import re
+from fuzzywuzzy import fuzz, process
 #import plotly.express as px
 
 df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
@@ -123,7 +127,8 @@ df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
 ##import numpy as np
 ##import plotly.express as px
 
-df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
+df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')   # use this for stream cloud
+#df = pd.read_csv('data_capstone_dsa2021_2022.csv')                     # use this locally
 
 st.write('Here are the first 5 rows in the data frame.')
 
@@ -759,8 +764,6 @@ a numerical measure of the similarity between two strings. In the code below, yo
 match to `WEST VIRIGINIA`.
 ''')
 st.code('''
-from fuzzywuzzy import fuzz
-
 string_value = 'WHEELING, WEST V,IRGINIA UNITED STATES'
 for potential_match_state in us_state_name_list:
     print(f"{string_value} -> {potential_match_state} = {fuzz.ratio(string_value, potential_match_state)}")
@@ -829,8 +832,6 @@ st.write('''
 The `fuzzywuzzy` package has a function that automatically identifies the best match in a list, as shown below.
 ''')
 st.code('''
-from fuzzywuzzy import process
-
 best_match = process.extractOne(string_value, us_state_name_list)
 print(f"{string_value} -> {best_match}")
 ''')
@@ -1844,7 +1845,7 @@ def normalize_state(state_string):
             new_list.append(word)
     temp = str.strip(' '.join(new_list))
 
-    from fuzzywuzzy import process
+    ##from fuzzywuzzy import process
     best_match = process.extractOne(temp, us_state_name_list)
     if best_match[1] >= 86:
         return uppercase_us_state_to_abbrev[best_match[0]]
