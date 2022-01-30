@@ -4,92 +4,12 @@ import numpy as np
 import re
 #from fuzzywuzzy import fuzz, process
 #import plotly.express as px
-
-#################################################################################################
-# code from https://github.com/BugzTheBunny/streamlit_logging_output_example/blob/main/app.py
-
-# from streamlit.report_thread import REPORT_CONTEXT_ATTR_NAME
-# from threading import current_thread
-# from contextlib import contextmanager
-# from io import StringIO
-# import sys
-# import logging
-# import time
-#
-#
-# @contextmanager
-# def st_redirect(src, dst):
-#     placeholder = st.empty()
-#     output_func = getattr(placeholder, dst)
-#
-#     with StringIO() as buffer:
-#         old_write = src.write
-#
-#         def new_write(b):
-#             if getattr(current_thread(), REPORT_CONTEXT_ATTR_NAME, None):
-#                 buffer.write(b + '')
-#                 output_func(buffer.getvalue() + '')
-#             else:
-#                 old_write(b)
-#
-#         try:
-#             src.write = new_write
-#             yield
-#         finally:
-#             src.write = old_write
-#
-#
-# @contextmanager
-# def st_stdout(dst):
-#     "this will show the prints"
-#     with st_redirect(sys.stdout, dst):
-#         yield
-#
-#
-# @contextmanager
-# def st_stderr(dst):
-#     "This will show the logging"
-#     with st_redirect(sys.stderr, dst):
-#         yield
-#################################################################################################
-
-
-##
-##data = load_iris()
-##X = data.data
-##y_actual = data.target
-##
-##df = pd.DataFrame(X)
-##df.columns = data.feature_names
-##df['y_actual'] = y_actual
-##df = df.merge(pd.DataFrame(list(zip([0,1,2],data.target_names)),columns =['y_actual','Target_actual']), on='y_actual', how='left')
-##
-##from sklearn.cluster import KMeans
-##kmeans_cluster = KMeans(n_clusters=3, random_state=0).fit(X)
-##y_predicted = kmeans_cluster.labels_
-##
-##df['y_predicted'] = y_predicted
-##
-##df = df.merge(pd.DataFrame(list(zip([1,0,2],data.target_names)),columns =['y_predicted','Target_predicted']), on='y_predicted', how='left')
-##df['Target_actual, Target_predicted']= df['Target_actual']+', '+df['Target_predicted']
-##
-##cc_df = pd.DataFrame(kmeans_cluster.cluster_centers_)
-##cc_df.columns = data.feature_names
-##cc_df['y_actual'] = [0,1,2]
-##cc_df = cc_df.merge(pd.DataFrame(list(zip([0,1,2],data.target_names)),columns =['y_actual','Target_actual']), on='y_actual', how='left')
-##cc_df['y_predicted'] = [0,1,2]
-##cc_df = cc_df.merge(pd.DataFrame(list(zip([0,1,2],data.target_names)),columns =['y_predicted','Target_predicted']), on='y_predicted', how='left')
-##cc_df['Target_actual, Target_predicted']= cc_df['Target_actual']+' mean'
-##
-##df_extended = pd.concat([df, cc_df], ignore_index=True)
-##
-##
-##
-##target_list = data.feature_names
+import geopandas as gpd
+from shapely.geometry import Point, Polygon
 
 
 st.title('DSA Capstone Project')
-st.subheader('Titus Teodorescu/ALTRD')
+st.subheader('Titus Teodorescu, Assessment Designer, ALTRD')
 
 st.markdown('Task: Please use your imagination to show your insights from the data in `data_capstone_dsa2021_2022.csv` and tell a cogent story to your audience.')
 
@@ -122,13 +42,12 @@ import re
 df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')
 ''')
 
-##import streamlit as st
-##import pandas as pd
-##import numpy as np
-##import plotly.express as px
 
 df = pd.read_csv('CAPSTONE-PROJECT/data_capstone_dsa2021_2022.csv')   # use this for stream cloud
 #df = pd.read_csv('data_capstone_dsa2021_2022.csv')                     # use this locally
+
+usa = gpd.read_file('CAPSTONE-PROJECT/States 21basic/geo_export_b421321d-b4cb-4f18-8a01-4d4c471d7e2e.shp') # use this for stream cloud
+#usa = gpd.read_file('States 21basic/geo_export_b421321d-b4cb-4f18-8a01-4d4c471d7e2e.shp')                   # use this locally
 
 st.write('Here are the first 5 rows in the data frame.')
 
@@ -1858,80 +1777,349 @@ st.table(data=df[0:5])
 
 
 st.subheader('Part 3. Exploratory data analysis')
-st.write('Let\'s explore the data some more. Here are the tasks in this part.')
+st.write('Let\'s explore the data some more.')
 
-st.write('''
-* Look at the outliers in each column, using histograms
-* Look at the outliers in each column, using boxplots
-* For each column, use the kernel density estimate (kde) to plotting the shape of the distribution
-* Use the `.corr()` function to find correlations using pandas. Then visualize the correlation matrix using a heatmap in seaborn
-* Visualize the same correlation matrix but this time include the correlation value in the graph
-* Use geopandas to display info about the data frame in the context of a US map.
-* Use geopandas to determine if there are variations bewteen the five geographical US regions: West, Southwest, Southeast, Midwest, Northeast.
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+from numpy import median, mean
+plt.style.use('bmh')
+
+df['all']= np.ones(len(df.index), dtype='int64')
+
+st.subheader("Input for the interactive graph")
+fig01_kind=st.selectbox("Select value of kind : ", ['bar', 'box', 'boxen', 'count', 'point', 'strip', 'swarm', 'violin'], 1)
+fig01_x = st.selectbox("Select value of x : ", ['rt_gs_2', 'rt_gs_3', 'rt_gs_4', 'rt_gs_5', 'rt_gs_6', 'rt_gs_7', 'rt_gs_8', 'rt_gs_9', 'rt_gs_10', 'rt_gs_11', 'rt_gs_12', 'rt_gs_13', 'rt_gs_14', 'rt_gs_15', 'rt_gs_16', 'rt_gs_17', 'rt_gs_18', 'rt_gs_19', 'rt_gs_20', 'rt_total', 'gs_1', 'gs_2', 'gs_3', 'gs_4', 'gs_5', 'gs_6', 'gs_7', 'gs_8', 'gs_9', 'gs_10', 'gs_11', 'gs_12', 'gs_13', 'gs_14', 'gs_15', 'gs_16', 'gs_17', 'gs_18', 'gs_19', 'gs_20', 'sum_score', 'gender', 'home_computer', 'state', 'age', 'all', 'None'], 40)
+fig01_y = st.selectbox("Select value of y : ", ['rt_gs_2', 'rt_gs_3', 'rt_gs_4', 'rt_gs_5', 'rt_gs_6', 'rt_gs_7', 'rt_gs_8', 'rt_gs_9', 'rt_gs_10', 'rt_gs_11', 'rt_gs_12', 'rt_gs_13', 'rt_gs_14', 'rt_gs_15', 'rt_gs_16', 'rt_gs_17', 'rt_gs_18', 'rt_gs_19', 'rt_gs_20', 'rt_total', 'gs_1', 'gs_2', 'gs_3', 'gs_4', 'gs_5', 'gs_6', 'gs_7', 'gs_8', 'gs_9', 'gs_10', 'gs_11', 'gs_12', 'gs_13', 'gs_14', 'gs_15', 'gs_16', 'gs_17', 'gs_18', 'gs_19', 'gs_20', 'sum_score', 'gender', 'home_computer', 'state', 'age', 'all', 'None'], 41)
+fig01_col=st.selectbox("Select value of col : ", ['rt_gs_2', 'rt_gs_3', 'rt_gs_4', 'rt_gs_5', 'rt_gs_6', 'rt_gs_7', 'rt_gs_8', 'rt_gs_9', 'rt_gs_10', 'rt_gs_11', 'rt_gs_12', 'rt_gs_13', 'rt_gs_14', 'rt_gs_15', 'rt_gs_16', 'rt_gs_17', 'rt_gs_18', 'rt_gs_19', 'rt_gs_20', 'rt_total', 'gs_1', 'gs_2', 'gs_3', 'gs_4', 'gs_5', 'gs_6', 'gs_7', 'gs_8', 'gs_9', 'gs_10', 'gs_11', 'gs_12', 'gs_13', 'gs_14', 'gs_15', 'gs_16', 'gs_17', 'gs_18', 'gs_19', 'gs_20', 'sum_score', 'gender', 'home_computer', 'state', 'age', 'all'], 43)
+fig01_hue=st.selectbox("Select value of hue : ", ['rt_gs_2', 'rt_gs_3', 'rt_gs_4', 'rt_gs_5', 'rt_gs_6', 'rt_gs_7', 'rt_gs_8', 'rt_gs_9', 'rt_gs_10', 'rt_gs_11', 'rt_gs_12', 'rt_gs_13', 'rt_gs_14', 'rt_gs_15', 'rt_gs_16', 'rt_gs_17', 'rt_gs_18', 'rt_gs_19', 'rt_gs_20', 'rt_total', 'gs_1', 'gs_2', 'gs_3', 'gs_4', 'gs_5', 'gs_6', 'gs_7', 'gs_8', 'gs_9', 'gs_10', 'gs_11', 'gs_12', 'gs_13', 'gs_14', 'gs_15', 'gs_16', 'gs_17', 'gs_18', 'gs_19', 'gs_20', 'sum_score', 'gender', 'home_computer', 'state', 'age', 'all'], 41)
+fig01_dodge=st.selectbox("Select value of dodge : ", [True, False], 0)
+fig01_col_wrap=st.selectbox("Select value of col_wrap : ", [1, 2, 3, 4], 2)
+fig01_estimator=st.selectbox("Select value of estimator : ", ['mean', 'median'], 0)
+
+dict_estimator={'mean':mean, 'median':median}
+
+#from numpy import median, mean
+#sns.catplot(x="home_computer", y="sum_score", estimator=median, kind="box", data=df, col='all', hue='gender', dodge=True, col_wrap=3)
+
+fig01_d = sns.catplot(data=df, kind=fig01_kind, x=fig01_x, y=fig01_y, col=fig01_col, hue=fig01_hue, dodge=fig01_dodge, col_wrap=fig01_col_wrap, estimator=dict_estimator[fig01_estimator])
+
+#st.subheader('First interactive 2D scatterplot')
+#st.markdown('Select the x and y features from the appropriate dropdowns in the side bar. The selections will be reflected in the display below.')
+#st.text('(x,y)=(\''+select_x_2d + '\',\''+select_y_2d+'\')')
+#st.markdown('Both raw data and the mean of the clusters are shown below.')
+
+#st.plotly_chart(fig01_d, use_container_width=True)
+st.pyplot(fig01_d)
+
+temp = sns.catplot(x='sum_score', estimator=mean, kind='box', data=df, col='all', hue='all', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Boxplot of scores');
+st.pyplot(temp)
+st.info('''
+The distribution of scores is skewed to the left.
+There are outliers among the scores.
 ''')
 
+temp = sns.catplot(x="sum_score", estimator=mean, kind="count", data=df, col='all', hue='all', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Count of scores');
+st.pyplot(temp)
+st.info('''
+The distribution of scores is skewed to the left.
+''')
+
+temp = sns.catplot(x="sum_score", estimator=mean, kind="count", data=df, col='all', hue='gender', dodge=True, col_wrap=1, height=8);
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Count of scores, by gender');
+st.pyplot(temp)
+st.info('''
+The mean score is 17.
+For each score above the mean, slightly more male than female participants got that score.
+The opposite is true for scores lower than the mean.
+''')
+
+temp = sns.catplot(x="gender", estimator=mean, kind="count", data=df, col='all', hue='all', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Count of gender');
+st.pyplot(temp)
+st.info('''
+There are slightly more female than male participants.
+''')
+
+df['%'] = 100 * df['all'] / df.groupby('gender')['all'].transform('sum')
+temp = sns.catplot(x="sum_score", y="%", estimator=sum, kind="bar", data=df, col='all', hue='gender', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Percent distribution of scores for each gender');
+st.pyplot(temp)
+st.info('''
+The mean score is 17.
+For each score above the mean, slighly more male than female participants got that score.
+The opposite is true for scores lower than the mean.
+''')
+
+temp = sns.displot(data=df, x='sum_score', kind='ecdf', hue='gender', height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Cumulative frequency of scores, by gender');
+st.pyplot(temp)
+st.info('''
+The two curves are different.
+''')
+
+temp = sns.catplot(x="sum_score", estimator=mean, kind="count", data=df, col='all', hue='home_computer', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Count of scores, by home_computer');
+st.pyplot(temp)
+st.info('''
+For each score, more participants have a home computer than not.
+''')
+
+temp = sns.catplot(x="home_computer", estimator=mean, kind="count", data=df, col='all', hue='all', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Count of home_computer');
+st.pyplot(temp)
+st.info('''
+More participants have a home computer than not.
+''')
+
+df['%'] = 100 * df['all'] / df.groupby('home_computer')['all'].transform('sum')
+temp = sns.catplot(x="sum_score", y="%", estimator=sum, kind="bar", data=df, col='all', hue='home_computer', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Percent distribution of scores for all home_computer values');
+st.pyplot(temp)
+st.info('''
+The two distributions are very similar.
+''')
+
+temp = sns.displot(data=df, x='sum_score', kind='ecdf', hue='home_computer', height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Cumulative frequency of scores, by home_computer value');
+st.pyplot(temp)
+st.info('''
+The curves are very similar.
+''')
+
+temp = sns.catplot(x="home_computer", y="sum_score", estimator=mean, kind="box", data=df, col='all', hue='gender', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Boxplot of scores, by home_computer and gender');
+st.pyplot(temp)
+st.info('''
+Of the participants without a home computer, males have higher scores than females.
+''')
+
+temp = sns.catplot(x="home_computer", y="sum_score", estimator=mean, kind="point", data=df, col='all', hue='gender', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Point plot of mean scores, by home_computer and gender');
+st.pyplot(temp)
+st.info('''
+Of the participants without a home computer, males have higher scores than females.
+''')
+
+temp = sns.catplot(x="home_computer", y="sum_score", estimator=median, kind="point", data=df, col='all', hue='gender', dodge=True, col_wrap=1, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Point plot of median scores, by home_computer and gender');
+st.pyplot(temp)
+st.info('''
+Of the participants without a home computer, males have higher scores than females.
+''')
+
+temp = sns.displot(data=df, x='sum_score', kde=True, height=8)
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Bar graph and distribution of scores');
+st.pyplot(temp)
+st.info('''
+The distribution of scores is skewed to the left.
+''')
+
+temp = sns.displot(data=df, x='sum_score', kde=True, hue='gender', height=8);
+temp.fig.subplots_adjust(top=.9)
+temp.fig.suptitle('Bar graph and distribution of scores, by gender');
+st.pyplot(temp)
+st.info('''
+The distributions swap places near the mean score.
+''')
+
+df_num = df.select_dtypes(include = ['int64'])
+df_categ = df.select_dtypes(include = ['O'])
 
 
-##st.sidebar.subheader("Input for the interactive 3d scatterplot")
-##select_x_3d = st.sidebar.selectbox("Select x feature: ", target_list, 0)
-##select_y_3d = st.sidebar.selectbox("Select y feature: ", target_list, 1)
-##select_z_3d = st.sidebar.selectbox("Select z feature: ", target_list, 2)
-##
-##
-##fig_3d = px.scatter_3d(df_extended, x=select_x_3d, y=select_y_3d, z=select_z_3d, color='Target_actual, Target_predicted', width=900, height=600)
-###fig_3d.show()
-##
-##st.subheader('Interactive 3D scatterplot')
-##st.markdown('Select the x, y, and z features from the appropriate dropdowns in the side bar. The selections will be reflected in the display below.')
-##st.text('(x,y,z)=(\''+select_x_3d + '\',\''+select_y_3d+'\',\''+select_z_3d+'\')')
-##st.markdown('Both raw data and the mean of the clusters are shown below.')
-##
-##st.plotly_chart(fig_3d, use_container_width=True)
-##
-##
-##st.sidebar.subheader("Input for the interactive 2d scatterplots")
-##select_x_2d = st.sidebar.selectbox("Select x feature : ", target_list, 0)
-##select_y_2d = st.sidebar.selectbox("Select y feature : ", target_list, 1)
-##
-##
-##
-##fig_2d = px.scatter(df_extended, x=select_x_2d, y=select_y_2d, color='Target_actual, Target_predicted', width=900, height=600)
-###fig_3d.show()
-##
-##st.subheader('First interactive 2D scatterplot')
-##st.markdown('Select the x and y features from the appropriate dropdowns in the side bar. The selections will be reflected in the display below.')
-##st.text('(x,y)=(\''+select_x_2d + '\',\''+select_y_2d+'\')')
-##st.markdown('Both raw data and the mean of the clusters are shown below.')
-##
-##st.plotly_chart(fig_2d, use_container_width=True)
-##
-##fig_2d_second = px.scatter(df, x=select_x_2d, y=select_y_2d, color='Target_actual, Target_predicted', facet_row='Target_actual', facet_col='Target_predicted', width=900, height=900)
-###fig_2d.show()
-###fig_3d.show()
-##
-##st.subheader('Second interactive 2D scatterplot')
-##st.markdown('Select the x and y features from the appropriate dropdowns in the side bar. The selections will be reflected in the display below.')
-##st.text('(x,y)=(\''+select_x_2d + '\',\''+select_y_2d+'\')')
-##st.text('facet_row=\'Target_actual\'')
-##st.text('facet_col=\'Target_predicted\'')
-##
-##st.plotly_chart(fig_2d_second, use_container_width=True)
-##
+# fig, ax = plt.subplots()
+# sns.heatmap(df_col.corr(), ax=ax)
+# st.write(fig)
 
 
+corr = df_num.corr()
+plt.figure(figsize=(12, 10))
+fig, ax = plt.subplots()
+temp = sns.heatmap(corr[(corr >= 0.5) | (corr <= -0.5)],
+            cmap='viridis', vmax=1.0, vmin=-1.0, linewidths=0.1,
+            annot=True, annot_kws={"size": 8}, square=True, ax=ax)
+temp.set(title='Correlations greater than 0.5');
+st.pyplot(fig)
+st.info('''
+Total response time correlates best with the response times for items #7 and #11.
 
+The total score correlates best with the scores for items #4, #7, #10, and #12.
+''')
 
-##def demo_function():
-##    """
-##    Just a sample function to show how it works.
-##    :return:
-##    """
-##    for i in range(10):
-##        logging.warning(f'Counting... {i}')
-##        time.sleep(2)
-##        print('Time out...')
-##
-##
-##if __name__ == '__main__':
-##    with st_stdout("success"), st_stderr("code"):
-##        demo_function()
+fig, ax = plt.subplots()
+temp = df.state.value_counts().plot(kind='bar', figsize=(12,10), ax=ax)
+plt.title("Counts by state, in decreasing order")
+plt.ylabel("Count")
+plt.xlabel("State");
+st.pyplot(fig)
+st.info('''
+Highest 5 counts are for CA, FL, NA, NY, and TX.
+''')
+
+fig, ax = plt.subplots()
+temp = df.groupby('state').mean()['sum_score'].sort_values(ascending=False).plot(kind='bar', figsize=(12,10), ax=ax);
+plt.title("Mean scores by state, in decreasing order")
+plt.ylabel("Mean score")
+plt.xlabel("State");
+st.pyplot(fig)
+st.info('''
+The 5 highest mean scores are for UT, MT, WI, HI, and VT.
+''')
+
+fig, ax = plt.subplots()
+temp = df.groupby('state').mean()['rt_total'].sort_values(ascending=False).plot(kind='bar', figsize=(12,10), ax=ax);
+plt.title("Mean response times by state, in decreasing order")
+plt.ylabel("Mean response time (in seconds)")
+plt.xlabel("State");
+st.pyplot(fig)
+st.info('''
+The 5 highest mean response times are for RI, IA, PR, LA, and GA.
+''')
+
+fig, ax = plt.subplots()
+temp = df.groupby('state').mean()['age'].sort_values(ascending=False).plot(kind='bar', figsize=(12,10), ax=ax);
+plt.title("Mean ages by state, in decreasing order")
+plt.ylabel("Mean age")
+plt.xlabel("State");
+st.pyplot(fig)
+st.info('''
+The 5 highest mean ages are for IA, NH, VI, HI, and MA.
+''')
+
+temp = sns.pairplot(data=df,
+            x_vars=['sum_score', 'rt_total', 'age'],
+            y_vars=['sum_score', 'rt_total', 'age'], height=3, corner=True)
+
+temp.fig.subplots_adjust(top=.92)
+temp.fig.suptitle('Plots of scores, response times, and ages');
+st.pyplot(temp)
+st.info('''
+As age increases, the minimum score increases and the maximum score is constant.
+
+Ignoring outliers, as the response time increases, the minimum score increases and the maximum score is constant.
+''')
+
+temp = sns.pairplot(data=df,
+            x_vars=['sum_score', 'rt_total', 'age'],
+            y_vars=['sum_score', 'rt_total', 'age'], hue="gender", height=3, corner=True)
+
+temp.fig.subplots_adjust(top=.92)
+temp.fig.suptitle('Plots of scores, response times, and ages, by gender');
+st.pyplot(temp)
+st.info('''
+The male and female distributions are similar for response times, but slightly different for scores and for ages.
+''')
+
+temp = sns.pairplot(data=df,
+            x_vars=['sum_score', 'rt_total', 'age'],
+            y_vars=['sum_score', 'rt_total', 'age'], kind="kde", height=3, corner=True)
+
+temp.fig.subplots_adjust(top=.92)
+temp.fig.suptitle('kde contours of scores, response times, and ages');
+st.pyplot(temp)
+st.info('''
+The contours are centered at the means.
+''')
+
+temp = sns.pairplot(data=df,
+            x_vars=['sum_score', 'rt_total', 'age'],
+            y_vars=['sum_score', 'rt_total', 'age'], kind="kde", hue='gender', height=3, corner=True)
+
+temp.fig.subplots_adjust(top=.92)
+temp.fig.suptitle('kde contours of scores, response times, and ages, by gender');
+st.pyplot(temp)
+st.info('''
+The contours are fairly similar.
+''')
+
+df_usa = usa.merge(df, left_on='state_abbr', right_on='state')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sum_score', cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("States, colored by mean scores");
+st.pyplot(fig)
+st.info('''
+The states are colored using a white-to-dark-red gradient, but it's hard to rank some colors.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sum_score', scheme='equal_interval', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Total scores, classification by equal intervals, 4 bins");
+st.pyplot(fig)
+st.info('''
+Classifying by equal intervals does not work well when the data are skewed to one side or contains outliers.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sum_score', scheme='quantiles', k=2, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Total scores, classification by quantiles, 2 bins");
+st.pyplot(fig)
+st.info('''
+The top scores are located in top right and bottom left.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sum_score', scheme='quantiles', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Total scores, classification by quantiles, 4 bins");
+st.pyplot(fig)
+st.info('''
+The problem with quantiles is that, while the number of states is constant in each bin, the numerical ranges are different between bins.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sum_score', scheme='natural_breaks', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Total scores, classification by natural breaks, 4 bins");
+st.pyplot(fig)
+st.info('''
+Classifying by natural breaks minimizes within-class variance and maximizes between-class differences.
+
+One drawback of this approach is each dataset generates a unique classification solution, making it hard to comparison across maps.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='rt_total', scheme='natural_breaks', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Response times, classification by natural breaks, 4 bins");
+st.pyplot(fig)
+st.info('''
+The data has outliers.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='rt_total', scheme='quantiles', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Response times, classification by quantiles, 4 bins");
+st.pyplot(fig)
+st.info('''
+Better display than by natural breaks.
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='age', scheme='quantiles', k=4, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("Ages, classification by quantiles, 4 bins");
+st.pyplot(fig)
+st.info('''
+#
+''')
+
+fig, ax = plt.subplots(figsize=(18,8))
+df_usa.plot(column='sub_region', categorical=True, cmap='OrRd', edgecolor='k', legend=True, ax=ax)
+plt.title("US Regions");
+st.pyplot(fig)
+st.info('''
+#
+''')
